@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+flask-script = "*"
+elasticsearch = "*"
+
+[dev-packages]
+flask-testing = "*"
+black = "*"
+better-exceptions = "*"
+coverage = "*"
+
+[requires]
+python_version = "3.6"
