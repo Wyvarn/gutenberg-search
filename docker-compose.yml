@@ -1,0 +1,81 @@
+version: '3.7'
+
+services:
+        client:
+                build: ./client
+                container_name: client
+                ports:
+                        - "8080:80"
+                networks:
+                        - frontend
+                depends_on:
+                        - server
+                deploy:
+                        replicas: 3
+                        restart_policy:
+                                condition: on_failure
+                                delay: 5s
+                                max_attempts: 5
+                        update_config:
+                                parallelism: 2
+                                delay: 10s
+                                failure_action: rollback
+                volumes:
+                        - ./client:/app
+                        - "app/node_modules"
+
+        server:
+                build: ./server
+                container_name: server
+                ports:
+                        - "5000:5000"
+                environment:
+                        ES_HOST: elasticsearch
+                volumes:
+                        - ./books:/usr/src/app/books
+                        - ./server:/usr/src/app
+                        - /usr/src/app/venv
+                networks:
+                        - frontend
+                        - backend
+                deploy:
+                        replicas: 2
+                        restart_policy:
+                                condition: on_failure
+                                delay: 3s
+                                max_attempts: 3
+                        update_config:
+                                parallelism: 2
+                                delay: 5s
+                                failure_action: rollback
+                depends_on:
+                        - elasticsearch
+
+        elasticsearch:
+                container_name: esearch
+                image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+                volumes:
+                        - esdata:/usr/share/elasticsearch/data
+                environment:
+                        - bootstrap.memory_lock=true
+                        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+                        - discovery.type=single-node
+                ports:
+                        - "9300:9300"
+                        - "9200:9200"
+                networks:
+                        - backend
+
+volumes:
+        esdata:
+
+networks:
+        frontend:
+        backend:
+
+
+
+
+
+
+
