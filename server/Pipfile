@@ -7,6 +7,8 @@ name = "pypi"
 flask = "*"
 flask-script = "*"
 elasticsearch = "*"
+sqlalchemy = "*"
+flask-sqlalchemy = "*"
 
 [dev-packages]
 flask-testing = "*"

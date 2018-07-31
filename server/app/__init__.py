@@ -9,7 +9,7 @@ import os
 import jinja2
 from flask import Flask #, g
 # from flask_login import LoginManager, current_user
-# from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 # from flask_mail import Mail
 from config import config
 from elasticsearch import Elasticsearch
@@ -18,7 +18,7 @@ from elasticsearch import Elasticsearch
 # initialize objects of flask extensions that will be used and then initialize the application
 # once the flask object has been created and initialized. 1 caveat for this is that when
 # configuring Celery, the broker will remain constant for all configurations
-# db = SQLAlchemy()
+db = SQLAlchemy()
 # login_manager = LoginManager()
 # login_manager.session_protection = "strong"
 # login_manager.login_view = "auth.login"
@@ -81,7 +81,7 @@ def create_app(config_name):
     config[config_name].init_app(app)
 
     # initialize the db and login manager
-    # db.init_app(app)
+    db.init_app(app)
     # login_manager.init_app(app)
 
     error_handlers(app)
@@ -203,6 +203,10 @@ def register_app_blueprints(app_):
     Registers the application blueprints
     :param app_: the current flask app
     """
-    from app.mod_auth import auth
+    # from app.mod_auth import auth
+    from app.mod_search import search
 
-    app_.register_blueprint(auth)
+    app_logger.info("Registering blueprints...")
+
+    # app_.register_blueprint(auth)
+    app_.register_blueprint(search)

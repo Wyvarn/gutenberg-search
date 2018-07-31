@@ -1,8 +1,8 @@
 from flask import request, jsonify
-from flask_api.exceptions import AuthenticationFailed, NotFound
-from flask_login import login_user, logout_user, login_required, current_user
-from app import db
-from .exceptions import UserAlreadyExists, CredentialsRequired
+# from flask_api.exceptions import AuthenticationFailed, NotFound
+# from flask_login import login_user, logout_user, login_required, current_user
+# from app import db
+# from .exceptions import UserAlreadyExists, CredentialsRequired
 
 from . import auth
 from .models import UserAccount, UserProfile
