@@ -18,6 +18,24 @@ def add_to_index(index, model):
     current_app.elasticsearch.index(index=index, doc_type=index, id=model.id, body=payload)
 
 
+def reset_index(index, model):
+    """
+    Resets the index
+    :param index Index to reset
+    :param model Model to add to index after reset
+    :type index str
+    """
+    if not current_app.elasticsearch:
+        return
+
+    if current_app.elasticsearch.exists(index=index):
+        current_app.elastcisearch.delete(index=index, doc_type=index)
+
+    # create the index
+    current_app.elasticsearch.create(index=index, doc_type=index)
+    add_to_index(index, model)
+
+
 def remove_from_index(index, model):
     """
     Removes the model from the index

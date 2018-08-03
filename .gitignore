@@ -3,4 +3,5 @@ venv
 .env
 env
 .venv/
-
+books/
+__MACOSX/
