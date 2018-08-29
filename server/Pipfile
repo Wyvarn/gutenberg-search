@@ -9,6 +9,7 @@ flask-script = "*"
 elasticsearch = "*"
 sqlalchemy = "*"
 flask-sqlalchemy = "*"
+"psycopg2" = "*"
 
 [dev-packages]
 flask-testing = "*"

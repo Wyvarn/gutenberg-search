@@ -28,8 +28,8 @@ def reset_index(index, model):
     if not current_app.elasticsearch:
         return
 
-    if current_app.elasticsearch.exists(index=index):
-        current_app.elastcisearch.delete(index=index, doc_type=index)
+    if current_app.elasticsearch.exists(index=index, doc_type=index, id=model.id):
+        current_app.elastcisearch.delete(index=index, doc_type=index, id=model.id)
 
     # create the index
     current_app.elasticsearch.create(index=index, doc_type=index)

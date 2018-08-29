@@ -9,10 +9,15 @@ def parse_book_file(file_path):
     """
     Parses the book file
     :param file_path: File path to the book to parse
-    :type file_path tuple
+    :type file_path str
     :return: Returns a tuple with the title, author and paragraphs
-    :rtype
+    :rtype: tuple
     """
+
+    # read text file
+    with open(file_path) as file:
+        print(file)
+
 
 
 def read_and_insert_books(books_dir="files/books"):
@@ -32,4 +37,7 @@ def read_and_insert_books(books_dir="files/books"):
     for book in os.listdir(books_dir):
         app_logger.info(f"Reading file {book}")
         file_path = os.path.abspath(f"{books_dir}/{book}")
+
         # parse the book file
+        title, author, paragraphs = parse_book_file(file_path)
+
