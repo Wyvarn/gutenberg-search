@@ -13,6 +13,7 @@ from flask_sqlalchemy import SQLAlchemy
 # from flask_mail import Mail
 from config import config
 from elasticsearch import Elasticsearch
+from celery import Celery
 
 
 # initialize objects of flask extensions that will be used and then initialize the application
@@ -25,6 +26,8 @@ db = SQLAlchemy()
 #
 # mail = Mail()
 app_logger = logging.getLogger("GutenbergLogger")
+
+celery = Celery(__name__, broker=os.environ.get('CELERY_BROKER_URL'), backend=os.environ.get("CELERY_RESULT_BACKEND"))
 
 
 class GutenbergApp(Flask):
@@ -83,6 +86,8 @@ def create_app(config_name):
     # initialize the db and login manager
     db.init_app(app)
     # login_manager.init_app(app)
+
+    celery.conf.update(app.config)
 
     error_handlers(app)
     register_app_blueprints(app)

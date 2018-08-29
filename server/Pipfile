@@ -10,6 +10,8 @@ elasticsearch = "*"
 sqlalchemy = "*"
 flask-sqlalchemy = "*"
 "psycopg2" = "*"
+celery = "*"
+python-dotenv = "*"
 
 [dev-packages]
 flask-testing = "*"
