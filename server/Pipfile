@@ -12,6 +12,7 @@ flask-sqlalchemy = "*"
 "psycopg2" = "*"
 celery = "*"
 python-dotenv = "*"
+redis = "*"
 
 [dev-packages]
 flask-testing = "*"

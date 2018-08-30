@@ -20,15 +20,18 @@ def load_and_index_es(self, index):
 
     status = current_app.elasticsearch.indices.exists(index)
 
-    if status:
-        logger.info(f'Found index {index} loading data...')
-        load_data_in_es.apply_async(index)
+    if not status:
+        logger.warn(f'Index {index} not found, loading data')
+        load_data_in_es.s(index).apply_async()
     else:
-        logger.error(f'Index {index} not found')
+        logger.info(f'Found index {index} in es')
 
 
 @celery.task()
 def load_data_in_es(self, index):
+
+    logger.info(f'Loading index {index} in ES')
+
     def parse_book_file(file_path):
         """
         Parses the book file
@@ -58,5 +61,7 @@ def load_data_in_es(self, index):
 
             # parse the book file
             title, author, paragraphs = parse_book_file(file_path)
+
+    read_and_insert_books()
 
 
