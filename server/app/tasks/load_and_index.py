@@ -1,6 +1,7 @@
 from app import celery
 from flask import current_app
 from elasticsearch.exceptions import ConnectionError
+from elasticsearch.helpers import bulk
 from celery.utils.log import get_task_logger
 import os
 import re
@@ -86,20 +87,24 @@ def load_data_in_es(index):
         bulk_operations = []
 
         for x in range(len(paragraphs)):
-            bulk_operations.append(dict(index={'_index': index, '_type': 'book'}))
             bulk_operations.append(dict(
-                author=author,
-                title=title,
-                location=x,
-                text=paragraphs[x]
+                _index=index,
+                _type="book",
+                _id=x,
+                _source=dict(
+                    author=author,
+                    title=title,
+                    location=x,
+                    text=paragraphs[x]
+                )
             ))
 
-            if x > 0 and  x % 500 == 0:
-                current_app.elasticsearch.bulk({'index': index, 'body': bulk_operations})
+            if x > 0 and x % 500 == 0:
+                bulk(current_app.elasticsearch, actions=bulk_operations)
                 bulk_operations = []
                 logger.info(f'Indexed Paragraphs {x - 499} - {x}')
 
-        current_app.elasticsearch.bulk({'body': bulk_operations})
+        bulk(current_app.elasticsearch, actions=bulk_operations)
         logger.info(f'Indexed Paragraphs {len(paragraphs) - len(bulk_operations) / 2} - {len(paragraphs)}\n')
 
     read_and_insert_books()

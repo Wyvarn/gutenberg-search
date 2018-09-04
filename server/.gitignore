@@ -1,6 +1,8 @@
 venv
 .env
 env
+better_exceptions
+os
 .envrc
 .venv/
 .idea/
