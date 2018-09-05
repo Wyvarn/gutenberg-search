@@ -108,3 +108,4 @@ def load_data_in_es(index):
         logger.info(f'Indexed Paragraphs {len(paragraphs) - len(bulk_operations) / 2} - {len(paragraphs)}\n')
 
     read_and_insert_books()
+    logger.info(f"Done loading index {index} in ES")
