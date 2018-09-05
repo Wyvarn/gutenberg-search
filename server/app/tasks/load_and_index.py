@@ -5,8 +5,6 @@ from elasticsearch.helpers import bulk
 from celery.utils.log import get_task_logger
 import os
 import re
-from app.mod_search.search import reset_index
-from app.mod_search.models import Book
 
 
 logger = get_task_logger(__name__)
@@ -47,10 +45,10 @@ def load_data_in_es(index):
         with open(file_path, mode="r") as file:
             for line in file:
                 if re.match('^Title:\s(.+)$', line):
-                    title = line
+                    title = line.replace("\n", "")
 
                 if re.match('^Author:\s(.+)$', line):
-                    author = line
+                    author = line.replace("\n", "")
 
                 start_of_book_match = re.match('^\*{3}\s*START OF (THIS|THE) PROJECT GUTENBERG EBOOK.+\*{3}$', line)
                 end_of_book_match = re.match('\*{3}\s*END OF (THIS|THE) PROJECT GUTENBERG EBOOK.+\*{3}$', line)
@@ -98,6 +96,8 @@ def load_data_in_es(index):
                     text=paragraphs[x]
                 )
             ))
+
+            # do inserts in 500 paragraph batches
 
             if x > 0 and x % 500 == 0:
                 bulk(current_app.elasticsearch, actions=bulk_operations)
