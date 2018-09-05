@@ -66,7 +66,15 @@ class Config(metaclass=ABCMeta):
     MAIL_SENDER = 'Admin <arcoadmin@arco.com>'
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
 
-    ELASTICSEARCH_URL = os.environ.get("ELASTICSEARCH_URL", "http://localhost:9200")
+    ELASTICSEARCH_HOST = os.environ.get("ELASTICSEARCH_HOST", "http://localhost:9200")
+    ELASTICSEARCH_PORT = os.environ.get("ELASTICSEARCH_PORT", 9200)
+    CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
+    CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
+    BROKER_HEARTBEAT = 30
+    BROKER_CONNECTION_TIMEOUT = 30
+    CELERYD_LOG_COLOR = True
+    CELERYD_TASK_TIME_LIMIT = 35 * 60
+    CELERYD_TASK_SOFT_TIME_LIMIT = 30 * 60
 
     @staticmethod
     def init_app(app):

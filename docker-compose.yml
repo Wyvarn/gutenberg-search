@@ -65,6 +65,14 @@ services:
                         - "9200:9200"
                 networks:
                         - backend
+        
+        redis:
+                container_name: redis
+                image: redis:latest
+                ports:
+                        - 6379:6379
+                networks:
+                        - backend
 
 volumes:
         esdata:

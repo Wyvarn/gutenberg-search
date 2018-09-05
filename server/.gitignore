@@ -1,9 +1,12 @@
 venv
 .env
 env
+better_exceptions
+os
 .envrc
 .venv/
 .idea/
+.vscode/
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/

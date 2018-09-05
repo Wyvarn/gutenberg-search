@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-search = Blueprint(import_name=__name__, static_folder="static", template_folder="templates", url_prefix="/api/search",
-                   name="search")
+search = Blueprint(name="search", import_name=__name__, url_prefix="/api/search", static_folder="static",
+                   template_folder="templates")
 
 from . import views

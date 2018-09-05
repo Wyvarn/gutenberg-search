@@ -7,13 +7,13 @@ import os
 # from datetime import datetime
 
 import jinja2
-from flask import Flask #, g
+from flask import Flask  # , g
 # from flask_login import LoginManager, current_user
 from flask_sqlalchemy import SQLAlchemy
 # from flask_mail import Mail
 from config import config
 from elasticsearch import Elasticsearch
-
+from celery import Celery
 
 # initialize objects of flask extensions that will be used and then initialize the application
 # once the flask object has been created and initialized. 1 caveat for this is that when
@@ -25,6 +25,10 @@ db = SQLAlchemy()
 #
 # mail = Mail()
 app_logger = logging.getLogger("GutenbergLogger")
+
+celery = Celery(__name__, broker=os.environ.get('CELERY_BROKER_URL'), backend=os.environ.get("CELERY_RESULT_BACKEND"),
+                include=['app.tasks', "app.tasks.load_and_index"]
+                )
 
 
 class GutenbergApp(Flask):
@@ -49,7 +53,12 @@ class GutenbergApp(Flask):
             jinja2.PrefixLoader({}, delimiter=".")
         ])
         # addition of the elasticsearch attribute to the flask application
-        self.elasticsearch = Elasticsearch(os.environ.get("ELASTICSEARCH_URL", default="http://localhost:9200"))
+        # self.elasticsearch = Elasticsearch(hosts=[dict(host=os.environ.get("ELASTICSEARCH_HOST"),
+        #                                                port=os.environ.get('ELASTICSEARCH_PORT')
+        #                                                )],
+        #                                    default="http://localhost:9200")
+        self.elasticsearch = Elasticsearch(hosts=[dict(host='localhost', port=os.environ.get('ELASTICSEARCH_PORT'))],
+                                           default="http://localhost:9200")
 
     def create_global_jinja_loader(self):
         """
@@ -84,9 +93,11 @@ def create_app(config_name):
     db.init_app(app)
     # login_manager.init_app(app)
 
+    celery.conf.update(app.config)
+
     error_handlers(app)
     register_app_blueprints(app)
-    # app_request_handlers(app, db)
+    app_request_handlers(app)
     app_logger_handler(app, config_name)
 
     # initialize mail
@@ -98,27 +109,49 @@ def create_app(config_name):
     return app
 
 
-# def app_request_handlers(app, db_):
-#     """
-#     This will handle all the requests sent to the application
-#     This will include before and after requests which could be used to update a user's status or the
-#     database that is currently in use
-#     :param app: the current flask app
-#     """
-#
-#     @app.before_request
-#     def before_request():
-#         """
-#         Before submitting the request, change the currently logged in user 'last seen' status to now
-#         this will update the database last_seen column and every time the user makes a request (refreshes the
-#         page), the last seen will be updated. this is called before any request is ma
-#         """
-#         g.user = current_user
-#         if current_user.is_authenticated:
-#             current_user.last_seen = datetime.now()
-#             db.session.add(g.user)
-#             db_.session.add(current_user)
-#             db_.session.commit()
+def app_request_handlers(app):
+    """
+    This will handle all the requests sent to the application
+    This will include before and after requests which could be used to update a user's status or the
+    database that is currently in use
+    :param app: the current flask app
+    """
+
+    @app.before_first_request
+    def __run_on_start():
+        # from concurrent.futures import ThreadPoolExecutor as Executor
+        from app.tasks.load_and_index import load_and_index_es
+
+        logging.info("Loading books...")
+
+        load_and_index_es.apply_async(args=["library"])
+
+        # def __load_books():
+        #     """
+        #     this will run in a background thread to fetch  and store them in redis
+        #     """
+        #     from app.tasks.load_and_index import load_and_index_es
+        #
+        #     logging.info("Loading books...")
+        #
+        #     load_and_index_es.apply_async()
+        #
+        # with Executor(max_workers=5) as exe:
+        #     exe.submit(__load_books)
+
+    # @app.before_request
+    # def before_request():
+    #     """
+    #     Before submitting the request, change the currently logged in user 'last seen' status to now
+    #     this will update the database last_seen column and every time the user makes a request (refreshes the
+    #     page), the last seen will be updated. this is called before any request is ma
+    #     """
+    #     g.user = current_user
+    #     if current_user.is_authenticated:
+    #         current_user.last_seen = datetime.now()
+    #         db.session.add(g.user)
+    #         db_.session.add(current_user)
+    #         db_.session.commit()
 
 
 def app_logger_handler(app, config_name):
