@@ -48,7 +48,7 @@ def remove_from_index(index, model):
     current_app.elasticsearch.delete(index=index, doc_type=index, id=model.id)
 
 
-def query_index(index, query, page, per_page):
+def query_index(index, query, page=0, per_page=10):
     """
     Queries the index
     :param index: index name

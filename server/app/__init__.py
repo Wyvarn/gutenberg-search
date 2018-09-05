@@ -7,7 +7,7 @@ import os
 # from datetime import datetime
 
 import jinja2
-from flask import Flask  # , g
+from flask import Flask, jsonify  # , g
 # from flask_login import LoginManager, current_user
 from flask_sqlalchemy import SQLAlchemy
 # from flask_mail import Mail
@@ -116,6 +116,10 @@ def app_request_handlers(app):
     database that is currently in use
     :param app: the current flask app
     """
+
+    @app.route("/health", methods=["GET"])
+    def check_health():
+        return jsonify(dict(message="OK")), 200
 
     @app.before_first_request
     def __run_on_start():
