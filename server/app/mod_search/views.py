@@ -12,8 +12,8 @@ def search_index():
     per_page = request.args.get("per_page", 10, type=int)
 
     try:
-        ids, result = query_index("library", term, page, per_page)
-        return jsonify(dict(ids=ids, result=result)), 200
+        ids, total, result = query_index("library", term, page, per_page)
+        return jsonify(dict(ids=ids, total=total, results=result)), 200
     except RequestError as re:
         app_logger.error(f"Request failed with {re}")
-        return jsonify(dict(ids=[], result=[])), 400
+        return jsonify(dict(ids=[], total=0, results=[])), 400
