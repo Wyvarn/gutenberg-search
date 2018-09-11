@@ -1,6 +1,17 @@
 from flask import current_app
 
 
+def index_exists(index="library"):
+    """
+    Checks if an index exists, defaults to the library index
+    :param index: Index
+    :type index str
+    :return: status of an index
+    :rtype: bool
+    """
+    return current_app.elasticsearch.indices.exists(index)
+
+
 def add_to_index(index, model):
     """
     Adds a model to the search index
@@ -66,12 +77,15 @@ def query_index(index, query, page=0, per_page=10):
             "query": {
                 "multi_match": {
                     "query": query,
+                    "fuzziness": "auto"
                 },
                 # "from": (page - 1) * per_page,
                 # "size": per_page
-            }
+            },
         }
     )
 
-    ids = [int(hit['_id']) for hit in search['hits']['hits']]
-    return ids, search['hits']['total'], search["hits"]["hits"]
+    results = search["hits"]["hits"]
+
+    ids = [int(hit['_id']) for hit in results]
+    return dict(ids=ids, total=search['hits']['total'], results=results, index=index)
