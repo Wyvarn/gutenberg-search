@@ -89,3 +89,36 @@ def query_index(index, query, page=0, per_page=10):
 
     ids = [int(hit['_id']) for hit in results]
     return dict(ids=ids, total=search['hits']['total'], results=results, index=index)
+
+
+def get_paragraphs(book_title, start_location, end_location, index="library"):
+    filter_ = [
+        {
+            "term": {
+                "title": book_title
+            }
+        },
+        {
+            "range": {
+                "location": {
+                    "gte": start_location,
+                    "lte": end_location
+                }
+            }
+
+        }
+    ]
+
+    body = {
+        "size": end_location - start_location,
+        "sort": {
+            "location": "asc"
+        },
+        "query": {
+            "bool": {
+                "filter": filter_
+            }
+        }
+    }
+
+    return current_app.elasticsearch.search(index=index, doc_type="book", body=body)
