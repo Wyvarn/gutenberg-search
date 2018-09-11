@@ -61,14 +61,14 @@ def query_index(index, query, page=0, per_page=10):
         return [], 0
 
     search = current_app.elasticsearch.search(
-        index=index, doc_type=index,
+        index=index, doc_type="book",
         body={
             "query": {
-                "multi-match": {
-                    "query": query, "fields": ["*"]
+                "multi_match": {
+                    "query": query,
                 },
-                "from": (page - 1) * per_page,
-                "size": per_page
+                # "from": (page - 1) * per_page,
+                # "size": per_page
             }
         }
     )

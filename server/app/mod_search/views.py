@@ -2,6 +2,7 @@ from . import search
 from flask import jsonify, request
 from .search_wrapper import query_index
 from elasticsearch.exceptions import RequestError
+from app import app_logger
 
 
 @search.route("/search", methods=["GET"])
@@ -13,7 +14,6 @@ def search_index():
     try:
         ids, result = query_index("library", term, page, per_page)
         return jsonify(dict(ids=ids, result=result)), 200
-    except RequestError:
+    except RequestError as re:
+        app_logger.error(f"Request failed with {re}")
         return jsonify(dict(ids=[], result=[])), 400
-
-
