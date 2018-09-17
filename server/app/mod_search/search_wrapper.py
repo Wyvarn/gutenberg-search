@@ -91,7 +91,7 @@ def query_index(index, query, page=0, per_page=10):
     return dict(ids=ids, total=search['hits']['total'], results=results, index=index)
 
 
-def get_paragraphs(book_title, start_location, end_location, index="library"):
+def search_paragraphs(book_title, start_location, end_location, index="library"):
     filter_ = [
         {
             "term": {

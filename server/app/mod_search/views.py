@@ -1,6 +1,6 @@
 from . import search
 from flask import jsonify, request
-from .search_wrapper import query_index, index_exists
+from .search_wrapper import query_index, index_exists, search_paragraphs
 from elasticsearch.exceptions import RequestError
 from app import app_logger
 
@@ -24,3 +24,21 @@ def search_index():
             return jsonify(dict(ids=[], total=0, index="library", results=[])), 400
     else:
         return jsonify(dict(message="Index does not exist", results=[])), 404
+
+
+@search.route("/paragraphs", methods=["GET"])
+def get_paragraphs():
+    book_title = request.args.get("bookTitle", type=str)
+    start = request.args.get("start", 0, type=int)
+    end = request.args.get("end", 10, type=int)
+
+    if index_exists():
+        try:
+            paragraphs = search_paragraphs(book_title, start, end)
+            app_logger.info(f'Paragraphs {paragraphs}')
+            return jsonify({}), 200
+        except Exception as e:
+            app_logger.error(f"Request failed with {e}")
+            return jsonify({}), 400
+    else:
+        return jsonify({}), 404
